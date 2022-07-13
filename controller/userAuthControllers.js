@@ -1,12 +1,10 @@
 const bcypt = require('bcrypt')
-const {
-  DrEmailRegister,
-  DrAdrress,
-  DrRegistration,
-  authLogin,
-  // regSpcializationAndHealthCenter,
-} = require('../util/authFunctions')
-const signUpDoctor = (req, res, next) => {
+const { authLogin } = require('../util/AuthLogin')
+const { DrAdrress } = require('../util/DrAddress')
+const { RegDrHealthCenter } = require('../util/DrHealthCenter')
+const { DrRegistration } = require('../util/DrRegistration')
+const { RegDoctorSpecialization } = require('../util/DrSpecialization')
+const moreDoctor = async (req, res, next) => {
   const {
     Dr_firstName,
     Dr_lastName,
@@ -17,12 +15,12 @@ const signUpDoctor = (req, res, next) => {
     Dr_profileImg,
     address_name,
     email,
-    password,
   } = req.body
   try {
-    let emailRegister = DrEmailRegister(email, password)
-    let addresRegister = DrAdrress(address_name)
-    let doctorRegister = DrRegistration(
+    DrAdrress(address_name)
+    RegDrHealthCenter(work_location, address_name)
+    RegDoctorSpecialization(specialization)
+    DrRegistration(
       Dr_firstName,
       Dr_lastName,
       Dr_age,
@@ -33,18 +31,14 @@ const signUpDoctor = (req, res, next) => {
       specialization,
       work_location
     )
-    // let RegDoctorSpecializationAndHealthCenter =
-    //   regSpcializationAndHealthCenter(specialization, email)
-
     res.status(200).json({
       msg: 'Doctor Registered Successfully',
     })
   } catch (error) {
-    console.log(error)
     res.sendStatus(500)
   }
 }
-const signUpPatient = (req, res, next) => {
+const morePatient = (req, res, next) => {
   const {
     ps_firstName,
     ps_lastName,
@@ -59,4 +53,4 @@ const Login = async (req, res) => {
   const { email, password } = req.body
   const userLogin = authLogin(email, password)
 }
-module.exports = { signUpDoctor, signUpPatient, Login }
+module.exports = { moreDoctor, morePatient, Login }
