@@ -1,5 +1,5 @@
 const bcypt = require('bcrypt')
-const { authLogin } = require('../util/AuthLogin')
+const { authLogin } = require('./AuthLogin')
 const { DrAdrress } = require('../util/DrAddress')
 const { RegDrHealthCenter } = require('../util/DrHealthCenter')
 const { DrRegistration } = require('../util/DrRegistration')
@@ -49,8 +49,5 @@ const morePatient = (req, res, next) => {
     password,
   } = req.body
 }
-const Login = async (req, res) => {
-  const { email, password } = req.body
-  const userLogin = authLogin(email, password)
-}
-module.exports = { moreDoctor, morePatient, Login }
+
+module.exports = { moreDoctor, morePatient }

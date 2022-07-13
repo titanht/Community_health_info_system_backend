@@ -1,4 +1,5 @@
-const authLogin = (email, password) => {
+const authLogin = (req, res) => {
+  const { email, password } = req.body
   const sql = 'SELECT * FROM login WHERE email= ?'
   let query = db.query(sql, email, async (err, result) => {
     if (err) throw err
