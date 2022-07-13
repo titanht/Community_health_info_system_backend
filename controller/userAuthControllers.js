@@ -1,9 +1,10 @@
 const bcypt = require('bcrypt')
-const { authLogin } = require('./AuthLogin')
-const { DrAdrress } = require('../util/DrAddress')
+const { DrAddress } = require('../util/DrAddress')
 const { RegDrHealthCenter } = require('../util/DrHealthCenter')
 const { DrRegistration } = require('../util/DrRegistration')
 const { RegDoctorSpecialization } = require('../util/DrSpecialization')
+const { patientAddress } = require('../util/PatientAddress')
+const { patientRegistration } = require('../util/PatientRegistration')
 const moreDoctor = async (req, res, next) => {
   const {
     Dr_firstName,
@@ -17,7 +18,7 @@ const moreDoctor = async (req, res, next) => {
     email,
   } = req.body
   try {
-    DrAdrress(address_name)
+    DrAddress(address_name)
     RegDrHealthCenter(work_location, address_name)
     RegDoctorSpecialization(specialization)
     DrRegistration(
@@ -46,8 +47,19 @@ const morePatient = (req, res, next) => {
     ps_profileImg,
     address_name,
     email,
-    password,
   } = req.body
+  patientAddress(address_name)
+  patientRegistration(
+    ps_firstName,
+    ps_lastName,
+    ps_age,
+    address_name,
+    email,
+    ps_profileImg
+  )
+  res.status(200).json({
+    msg: 'patient Registered Successfully',
+  })
 }
 
 module.exports = { moreDoctor, morePatient }

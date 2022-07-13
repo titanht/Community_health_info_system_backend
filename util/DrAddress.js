@@ -1,5 +1,5 @@
 const db = require('../connect/connect')
-const DrAdrress = (address) => {
+const DrAddress = (address) => {
   const sqlInsertIntoAdress = 'INSERT INTO address SET ?'
   const sqlSearchUserAddress = 'SELECT * FROM address where address_name=?'
 
@@ -24,4 +24,4 @@ const DrAdrress = (address) => {
     }
   )
 }
-module.exports = { DrAdrress }
+module.exports = { DrAddress }
