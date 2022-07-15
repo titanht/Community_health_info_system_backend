@@ -1,10 +1,13 @@
+const db = require('../connect/connect')
+const bcrypt = require('bcrypt')
 const authLogin = (req, res) => {
   const { email, password } = req.body
   const sql = 'SELECT * FROM login WHERE email= ?'
-  let query = db.query(sql, email, async (err, result) => {
+  db.query(sql, email, async (err, result) => {
     if (err) throw err
     try {
-      let check = await bcrypt.compare(password, result[0].userPassword)
+      console.log(result[0].password)
+      let check = await bcrypt.compare(password, result[0].password)
       if (check) {
         res.status(200).json({
           msg: 'user logged in success',
