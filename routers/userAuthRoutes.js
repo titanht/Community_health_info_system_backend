@@ -11,6 +11,11 @@ const {
   saveReplayedAnswers,
   getAnswersList,
 } = require('../controller/AnswerController')
+const {
+  addVote,
+  removeVote,
+  getVote,
+} = require('../controller/VotesController')
 const router = express.Router()
 router.route('/signup').post(EmailRegister)
 router.route('/more/patient').post(morePatient)
@@ -20,7 +25,7 @@ router.route('/question').post(questionAsked).get(getQuestionTitleList)
 router.route('/question/:questionTitle').get(getQuestionsDetailList)
 router.route('/answer').post(saveReplayedAnswers)
 router.route('/answer/:questionTitle').get(getAnswersList)
-router.route('/vote/add').post()
-router.route('/vote/remove').post()
-router.route('/vote/:answerText').get()
+router.route('/vote/add').post(addVote)
+router.route('/vote/remove').post(removeVote)
+router.route('/vote/:answerText').get(getVote)
 module.exports = { router }

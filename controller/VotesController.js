@@ -1,11 +1,15 @@
 const db = require('../connect/connect')
+const sqlFindAnswerId = 'SELECT answer_id FROM answers WHERE answer_text=?'
+const sqlSaveVote = 'INSERT INTO vote SET ?'
+const sqlUpdateVote = 'UPDATE vote SET vote_count=? WHERE answer_id=?'
+const sqlFindVoteCountUsingPatientID =
+  'SELECT vote_count FROM vote WHERE patients_id=?'
+const sqlFindVoteCountUsingAnswerID =
+  'SELECT vote_count FROM vote WHERE answer_id=? '
+const sqlFindLoginId = 'SELECT login_id FROM login WHERE email= ?'
+const sqlFindPatientId = 'SELECT Ps_id FROM patients WHERE login_id= ?'
 const addVote = (req, res) => {
   const { answerText, email } = req.body
-  const sqlFindAnswerId = 'SELECT answer_id FROM answers WHERE answer_text=?'
-  const sqlSaveVote = 'INSERT INTO vote SET ?'
-  const sqlFindVoteCount = 'SELECT vote_count FROM vote WHERE patients_id=?'
-  const sqlFindLoginId = 'SELECT login_id FROM login WHERE email= ?'
-  const sqlFindPatientId = 'SELECT Ps_id FROM patients WHERE login_id= ?'
   db.query(sqlFindAnswerId, answerText, (err, answerResult) => {
     if (err) throw err
     const answerID = answerResult[0].answer_id
@@ -30,37 +34,39 @@ const addVote = (req, res) => {
                 msg: 'patient id not found',
               })
             } else {
-              db.query(sqlFindVoteCount, patientID, (err, voteResult) => {
-                if (err) throw err
-                const voteCount = voteResult[0].vote_count
-                if (voteResult == '') {
-                  const voteData = {
-                    answer_id: answerID,
-                    vote_count: 1,
-                    patinet_id: patientID,
-                  }
-                  db.query(sqlSaveVote, voteData, (err, result) => {
-                    res.status(200).json({
-                      msg: `first vote recoreded by patientID: ${patientID} to answerID: ${answerID}`,
-                      data: result,
+              db.query(
+                sqlFindVoteCountUsingPatientID,
+                patientID,
+                (err, voteResult) => {
+                  if (err) throw err
+                  console.log(voteResult)
+                  if (voteResult == '') {
+                    const voteData = {
+                      answer_id: answerID,
+                      vote_count: 1,
+                      patients_id: patientID,
+                    }
+                    db.query(sqlSaveVote, voteData, (err, result) => {
+                      res.status(200).json({
+                        msg: `first vote recoreded by patientID: ${patientID} to answerID: ${answerID}`,
+                        data: result,
+                      })
                     })
-                  })
-                } else {
-                  //vote must be once
-                  let addVoteCount = voteCount + 1
-                  const voteData = {
-                    answer_id: answerID,
-                    vote_count: addVoteCount,
-                    patinet_id: patientID,
-                  }
-                  db.query(sqlSaveVote, voteData, (err, result) => {
-                    res.status(200).json({
-                      msg: `additional vote recoreded by patientID: ${patientID} to answerID: ${answerID}`,
-                      data: result,
+                  } else {
+                    //vote must be once
+                    const voteCount = voteResult[0].vote_count
+                    let addVoteCount = voteCount + 1
+                    const updateVoteData = [addVoteCount, answerID]
+                    db.query(sqlUpdateVote, updateVoteData, (err, result) => {
+                      if (err) throw err
+                      res.status(200).json({
+                        msg: `additional vote recoreded by patientID: ${patientID} to answerID: ${answerID}`,
+                        data: result,
+                      })
                     })
-                  })
+                  }
                 }
-              })
+              )
             }
           })
         }
@@ -68,3 +74,94 @@ const addVote = (req, res) => {
     }
   })
 }
+const removeVote = (req, res) => {
+  const { answerText, email } = req.body
+  db.query(sqlFindAnswerId, answerText, (err, answerResult) => {
+    if (err) throw err
+    if (answerResult == '') {
+      res.status(404).json({
+        msg: 'answer id not found',
+      })
+    } else {
+      const answerID = answerResult[0].answer_id
+      db.query(sqlFindLoginId, email, (err, loginResult) => {
+        if (err) throw err
+        const loginID = loginResult[0].login_id
+        if (loginResult == '') {
+          res.status(404).json({
+            msg: 'login id  not found',
+          })
+        } else {
+          db.query(sqlFindPatientId, loginID, (err, patientResult) => {
+            if (err) throw err
+            if (patientResult == '') {
+              res.status(404).json({
+                msg: 'patient id not found',
+              })
+            } else {
+              const patientID = patientResult[0].Ps_id
+              db.query(
+                sqlFindVoteCountUsingPatientID,
+                patientID,
+                (err, voteResult) => {
+                  if (err) throw err
+                  if (voteResult == '') {
+                    const voteData = {
+                      answer_id: answerID,
+                      vote_count: -1,
+                      patients_id: patientID,
+                    }
+                    db.query(sqlSaveVote, voteData, (err, result) => {
+                      res.status(200).json({
+                        msg: `first vote reduce recoreded by patientID: ${patientID} to answerID: ${answerID}`,
+                        data: result,
+                      })
+                    })
+                  } else {
+                    //vote must be once
+                    const voteCount = voteResult[0].vote_count //vote must be once
+                    let addVoteCount = voteCount - 1
+                    const voteData = [addVoteCount, answerID]
+                    db.query(sqlUpdateVote, voteData, (err, result) => {
+                      res.status(200).json({
+                        msg: `additional vote reduce recoreded by patientID: ${patientID} to answerID: ${answerID}`,
+                        data: result,
+                      })
+                    })
+                  }
+                }
+              )
+            }
+          })
+        }
+      })
+    }
+  })
+}
+const getVote = (req, res) => {
+  const { answerText } = req.params
+  db.query(sqlFindAnswerId, answerText, (err, answerResult) => {
+    if (err) throw err
+    const answerID = answerResult[0].answer_id
+    if (answerResult == '') {
+      res.status(404).json({
+        msg: 'answer id not found',
+      })
+    } else {
+      db.query(sqlFindVoteCountUsingAnswerID, answerID, (err, voteResult) => {
+        if (err) throw err
+        if (voteResult == '') {
+          res.status(404).json({
+            msg: 'vote count not found',
+          })
+        } else {
+          res.status(404).json({
+            msg: 'vote count retrived success fully',
+            data: voteResult,
+          })
+        }
+      })
+    }
+  })
+}
+module.exports = { addVote, removeVote, getVote }
