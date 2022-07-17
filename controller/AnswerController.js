@@ -6,6 +6,7 @@ const saveReplayedAnswers = (req, res) => {
   const sqlFindLoginId = 'SELECT login_id FROM login WHERE email=?'
   const sqlFindDoctorId = 'SELECT Dr_id FROM doctor WHERE login_id=?'
   const sqlInsertInToAnswer = 'INSERT INTO answers SET ?'
+  const sqlFindAnswer = 'SELECT * FROM answers WHERE answer_text=?'
   db.query(sqlFindQuestionId, question_title, (err, QuestionResult) => {
     if (err) throw err
     const question_id = QuestionResult[0].question_id
@@ -16,32 +17,41 @@ const saveReplayedAnswers = (req, res) => {
     } else {
       db.query(sqlFindLoginId, email, (err, LoginResult) => {
         if (err) throw err
-        const loginID = LoginResult[0].login_id
         if (LoginResult == '') {
           res.status(404).json({
             msg: 'Doctor not registered!!',
           })
         } else {
+          const loginID = LoginResult[0].login_id
           db.query(sqlFindDoctorId, loginID, (err, DoctorResult) => {
             if (err) throw err
-            const doctorID = DoctorResult[0].Dr_id
             if (DoctorResult == '') {
               res.status(404).json({
                 msg: 'Doctor id is not found!!',
               })
             } else {
-              const answeredData = {
-                answer_text: answerText,
-                answer_img: answerImage,
-                doctor_id: doctorID,
-                questionID: question_id,
-              }
-              db.query(sqlInsertInToAnswer, answeredData, (err, result) => {
+              const doctorID = DoctorResult[0].Dr_id
+              db.query(sqlFindAnswer, answerText, (err, answerResult) => {
                 if (err) throw err
-                res.status(200).json({
-                  msg: `doctor answer to questionId: ${question_id} saved to database`,
-                  data: result,
-                })
+                if (answerResult == '') {
+                  const answeredData = {
+                    answer_text: answerText,
+                    answer_img: answerImage,
+                    doctor_id: doctorID,
+                    questionID: question_id,
+                  }
+                  db.query(sqlInsertInToAnswer, answeredData, (err, result) => {
+                    if (err) throw err
+                    res.status(200).json({
+                      msg: `doctor answer to questionId: ${question_id} saved to database`,
+                      data: result,
+                    })
+                  })
+                } else {
+                  res.status(200).json({
+                    msg: `doctor answer to questionId: ${question_id} saved to database`,
+                  })
+                }
               })
             }
           })

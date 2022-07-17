@@ -1,6 +1,6 @@
 const express = require('express')
 const db = require('./connect/connect')
-const { router } = require('./routers/userAuthRoutes')
+const { router } = require('./routers/Routes')
 const app = express()
 const port = 4000
 app.use(express.json())
