@@ -1,5 +1,8 @@
 const express = require('express')
-const { moreDoctor, morePatient } = require('../controller/userAuthControllers')
+const {
+  moreDoctor,
+  morePatient,
+} = require('../controller/UserFullRegistrationController')
 const { EmailRegister } = require('../controller/EmailRegister')
 const { authLogin } = require('../controller/AuthLogin')
 const {

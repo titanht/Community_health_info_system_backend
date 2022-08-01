@@ -16,7 +16,10 @@ const askQuestion = (req, res) => {
         db.query(findDoctorId, loginID, (err, DoctorResult) => {
           if (err) throw err
           if (DoctorResult == '') {
-            console.log('doctor not found')
+            res.status(404).json({
+              msg: 'Doctor not found!',
+              status: 'false',
+            })
           } else {
             const drId = DoctorResult[0].Dr_id
             db.query(findQuestion, title, (err, QuestionResult) => {
@@ -34,13 +37,14 @@ const askQuestion = (req, res) => {
                   (err, QuestionResult) => {
                     res.status(200).json({
                       msg: 'Doctor question stored in database',
-                      data: QuestionResult,
+                      status: 'true',
                     })
                   }
                 )
               } else {
                 res.status(200).json({
                   msg: `Doctor question stored in database`,
+                  status: 'true',
                 })
               }
             })
@@ -63,13 +67,14 @@ const askQuestion = (req, res) => {
               (err, QuestionResult) => {
                 res.status(200).json({
                   msg: 'Patient question saved to database',
-                  data: QuestionResult,
+                  status: 'true',
                 })
               }
             )
           } else {
             res.status(200).json({
               msg: 'Patient question saved to database',
+              status: 'true',
             })
           }
         })
@@ -82,15 +87,11 @@ const getQuestionTitleList = (req, res) => {
     'SELECT question_title, patientId, doctor_id from questions'
   db.query(sqlGetQuestionsList, (err, QuestionTitleList) => {
     if (err) throw err
-    res.status(200).json({
-      msg: 'question titles are retrived from database',
-      data: QuestionTitleList,
-    })
+    res.status(200).json(QuestionTitleList)
   })
 }
 const getQuestionsDetailList = (req, res) => {
   const { questionTitle } = req.params
-  console.log(questionTitle)
   const sqlGetQuestionsList =
     'SELECT question_text, question_img, patientId, doctor_id from questions WHERE question_title=?'
 

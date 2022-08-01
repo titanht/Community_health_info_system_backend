@@ -16,6 +16,7 @@ const addVote = (req, res) => {
     if (answerResult == '') {
       res.status(404).json({
         msg: 'answer id not found',
+        status: 'false',
       })
     } else {
       db.query(sqlFindLoginId, email, (err, loginResult) => {
@@ -24,6 +25,7 @@ const addVote = (req, res) => {
         if (loginResult == '') {
           res.status(404).json({
             msg: 'login id  not found',
+            status: 'false',
           })
         } else {
           db.query(sqlFindPatientId, loginID, (err, patientResult) => {
@@ -32,6 +34,7 @@ const addVote = (req, res) => {
             if (patientResult == '') {
               res.status(404).json({
                 msg: 'patient id not found',
+                status: 'false',
               })
             } else {
               db.query(
@@ -49,7 +52,7 @@ const addVote = (req, res) => {
                     db.query(sqlSaveVote, voteData, (err, result) => {
                       res.status(200).json({
                         msg: `first vote recoreded by patientID: ${patientID} to answerID: ${answerID}`,
-                        data: result,
+                        status: 'true',
                       })
                     })
                   } else {
@@ -61,7 +64,7 @@ const addVote = (req, res) => {
                       if (err) throw err
                       res.status(200).json({
                         msg: `additional vote recoreded by patientID: ${patientID} to answerID: ${answerID}`,
-                        data: result,
+                        status: 'true',
                       })
                     })
                   }
@@ -81,6 +84,7 @@ const removeVote = (req, res) => {
     if (answerResult == '') {
       res.status(404).json({
         msg: 'answer id not found',
+        status: 'false',
       })
     } else {
       const answerID = answerResult[0].answer_id
@@ -90,6 +94,7 @@ const removeVote = (req, res) => {
         if (loginResult == '') {
           res.status(404).json({
             msg: 'login id  not found',
+            status: 'false',
           })
         } else {
           db.query(sqlFindPatientId, loginID, (err, patientResult) => {
@@ -97,6 +102,7 @@ const removeVote = (req, res) => {
             if (patientResult == '') {
               res.status(404).json({
                 msg: 'patient id not found',
+                status: 'false',
               })
             } else {
               const patientID = patientResult[0].Ps_id
@@ -114,7 +120,7 @@ const removeVote = (req, res) => {
                     db.query(sqlSaveVote, voteData, (err, result) => {
                       res.status(200).json({
                         msg: `first vote reduce recoreded by patientID: ${patientID} to answerID: ${answerID}`,
-                        data: result,
+                        status: 'true',
                       })
                     })
                   } else {
@@ -146,6 +152,7 @@ const getVote = (req, res) => {
     if (answerResult == '') {
       res.status(404).json({
         msg: 'answer id not found',
+        status: 'false',
       })
     } else {
       db.query(sqlFindVoteCountUsingAnswerID, answerID, (err, voteResult) => {
@@ -153,11 +160,12 @@ const getVote = (req, res) => {
         if (voteResult == '') {
           res.status(404).json({
             msg: 'vote count not found',
+            status: 'false',
           })
         } else {
           res.status(404).json({
             msg: 'vote count retrived success fully',
-            data: voteResult,
+            status: 'true',
           })
         }
       })

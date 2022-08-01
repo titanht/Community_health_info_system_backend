@@ -11,8 +11,9 @@ const saveReplayedAnswers = (req, res) => {
     if (err) throw err
     const question_id = QuestionResult[0].question_id
     if (QuestionResult == '') {
-      res.status(400).json({
+      res.status(404).json({
         msg: 'questionId  not found',
+        status: 'false',
       })
     } else {
       db.query(sqlFindLoginId, email, (err, LoginResult) => {
@@ -20,6 +21,7 @@ const saveReplayedAnswers = (req, res) => {
         if (LoginResult == '') {
           res.status(404).json({
             msg: 'Doctor not registered!!',
+            status: 'false',
           })
         } else {
           const loginID = LoginResult[0].login_id
@@ -28,6 +30,7 @@ const saveReplayedAnswers = (req, res) => {
             if (DoctorResult == '') {
               res.status(404).json({
                 msg: 'Doctor id is not found!!',
+                status: 'false',
               })
             } else {
               const doctorID = DoctorResult[0].Dr_id
@@ -44,12 +47,13 @@ const saveReplayedAnswers = (req, res) => {
                     if (err) throw err
                     res.status(200).json({
                       msg: `doctor answer to questionId: ${question_id} saved to database`,
-                      data: result,
+                      status: 'true',
                     })
                   })
                 } else {
                   res.status(200).json({
                     msg: `doctor answer to questionId: ${question_id} saved to database`,
+                    status: 'true',
                   })
                 }
               })
@@ -73,12 +77,14 @@ const getAnswersList = (req, res) => {
     if (QuestionIdResult == '') {
       res.status(404).json({
         msg: 'question id not found',
+        status: 'false',
       })
     } else {
       db.query(sqlFindAnswersByQuestionId, questionID, (err, answerResult) => {
         if (err) throw err
         res.status(200).json({
           msg: `answers to questionID: ${questionID} are retrived from database`,
+          status: 'true',
           data: answerResult,
         })
       })

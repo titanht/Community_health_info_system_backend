@@ -43,7 +43,7 @@ const authLogin = (req, res) => {
                     msg: 'user successfully logged in and refresh token saved to db',
                     access_token: accessToken,
                     refresh_token: refreshToken,
-                    refreshTokenData: RefreshTResult,
+                    status: 'true',
                   })
                 }
               )
@@ -53,17 +53,22 @@ const authLogin = (req, res) => {
                 msg: 'user successfully logged in',
                 access_token: accessToken,
                 refresh_token: refreshToken,
+                status: 'true',
               })
             }
           })
         } else {
           res.status(404).json({
             msg: 'invalid password try again!',
+            status: 'false',
           })
         }
       } catch (error) {
-        res.sendStatus(500)
-        console.error(error)
+        res.status(404).json({
+          msg: 'server erro',
+          status: 'false',
+          error: `${error}`,
+        })
       }
     }
   })

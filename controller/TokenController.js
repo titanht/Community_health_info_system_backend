@@ -9,7 +9,10 @@ const regenerateAccessToken = (req, res) => {
   db.query(sqlFindRefreshToken, RefToken, (err, result) => {
     if (err) throw err
     if (result == '') {
-      res.sendStatus(403)
+      res.status(404).json({
+        msg: 'refresh token not found!',
+        status: 'false',
+      })
     } else {
       const refreshToken = result[0].refresh_token
 
@@ -27,6 +30,7 @@ const regenerateAccessToken = (req, res) => {
           )
           res.status(200).json({
             access_token: accessToken,
+            status: 'true',
           })
         }
       )

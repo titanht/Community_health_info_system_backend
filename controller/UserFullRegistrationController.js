@@ -34,6 +34,7 @@ const moreDoctor = async (req, res, next) => {
     )
     res.status(200).json({
       msg: 'Doctor Registered Successfully',
+      status: 'true',
     })
   } catch (error) {
     res.sendStatus(500)
@@ -59,6 +60,7 @@ const morePatient = (req, res, next) => {
   )
   res.status(200).json({
     msg: 'patient Registered Successfully',
+    status: 'true',
   })
 }
 
