@@ -13,6 +13,7 @@ const authLogin = (req, res) => {
     if (result == '') {
       res.status(404).json({
         msg: `user not found with email:${email}. retry or signUp`,
+        status: 'false',
       })
     } else {
       const loginID = result[0].login_id
@@ -21,7 +22,7 @@ const authLogin = (req, res) => {
         if (check) {
           const user = { userEmail: email }
           const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-            expiresIn: '20s',
+            expiresIn: '86400s',
           })
           db.query(sqlFindLoginIDInRefreshToken, loginID, (err, result) => {
             if (err) throw err
@@ -43,6 +44,7 @@ const authLogin = (req, res) => {
                     msg: 'user successfully logged in and refresh token saved to db',
                     access_token: accessToken,
                     refresh_token: refreshToken,
+                    userEmail: email,
                     status: 'true',
                   })
                 }
@@ -53,6 +55,7 @@ const authLogin = (req, res) => {
                 msg: 'user successfully logged in',
                 access_token: accessToken,
                 refresh_token: refreshToken,
+                userEmail: email,
                 status: 'true',
               })
             }
@@ -65,7 +68,7 @@ const authLogin = (req, res) => {
         }
       } catch (error) {
         res.status(404).json({
-          msg: 'server erro',
+          msg: 'server error',
           status: 'false',
           error: `${error}`,
         })

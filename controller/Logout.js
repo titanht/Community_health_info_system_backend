@@ -15,7 +15,7 @@ const logout = (req, res) => {
       } else {
         res.status(200).json({
           msg: 'user successfully logged out',
-          data: RefResult,
+          status: 'true',
         })
       }
     })

@@ -40,7 +40,7 @@ const moreDoctor = async (req, res, next) => {
     res.sendStatus(500)
   }
 }
-const morePatient = (req, res, next) => {
+const moreUser = (req, res, next) => {
   const {
     ps_firstName,
     ps_lastName,
@@ -64,4 +64,4 @@ const morePatient = (req, res, next) => {
   })
 }
 
-module.exports = { moreDoctor, morePatient }
+module.exports = { moreDoctor, moreUser }

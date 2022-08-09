@@ -1,7 +1,7 @@
 const express = require('express')
 const {
   moreDoctor,
-  morePatient,
+  moreUser,
 } = require('../controller/UserFullRegistrationController')
 const { EmailRegister } = require('../controller/EmailRegister')
 const { authLogin } = require('../controller/AuthLogin')
@@ -25,7 +25,7 @@ const { regenerateAccessToken } = require('../controller/TokenController')
 const { logout } = require('../controller/Logout')
 const router = express.Router()
 router.route('/signup').post(EmailRegister)
-router.route('/more/patient').post(morePatient)
+router.route('/more/user').post(moreUser)
 router.route('/more/doctor').post(moreDoctor)
 router.route('/Login').post(authLogin)
 router.route('/question').post(askQuestion).get(getQuestionTitleList)
