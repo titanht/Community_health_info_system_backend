@@ -9,77 +9,84 @@ const askQuestion = (req, res) => {
 
   db.query(findLoginedInUser, email, (err, LoginResult) => {
     if (err) throw err
-    const loginID = LoginResult[0].login_id
-    db.query(findPatientId, loginID, (err, PatientResult) => {
-      if (err) throw err
-      if (PatientResult == '') {
-        db.query(findDoctorId, loginID, (err, DoctorResult) => {
-          if (err) throw err
-          if (DoctorResult == '') {
-            res.status(404).json({
-              msg: 'Doctor not found!',
-              status: 'false',
-            })
-          } else {
-            const drId = DoctorResult[0].Dr_id
-            db.query(findQuestion, title, (err, QuestionResult) => {
-              if (err) throw err
-              if (QuestionResult == '') {
-                const doctorQuestionAskedData = {
-                  question_title: title,
-                  question_text: text,
-                  question_img: img,
-                  doctor_id: drId,
-                }
-                db.query(
-                  sqlInsertIntoQuestions,
-                  doctorQuestionAskedData,
-                  (err, QuestionResult) => {
-                    res.status(200).json({
-                      msg: 'Doctor question stored in database',
-                      status: 'true',
-                    })
+    if (LoginResult == '') {
+      res.status(404).json({
+        msg: 'user not found!',
+        status: 'false',
+      })
+    } else {
+      const loginID = LoginResult[0].login_id
+      db.query(findPatientId, loginID, (err, PatientResult) => {
+        if (err) throw err
+        if (PatientResult == '') {
+          db.query(findDoctorId, loginID, (err, DoctorResult) => {
+            if (err) throw err
+            if (DoctorResult == '') {
+              res.status(404).json({
+                msg: 'Doctor not found!',
+                status: 'false',
+              })
+            } else {
+              const drId = DoctorResult[0].Dr_id
+              db.query(findQuestion, title, (err, QuestionResult) => {
+                if (err) throw err
+                if (QuestionResult == '') {
+                  const doctorQuestionAskedData = {
+                    question_title: title,
+                    question_text: text,
+                    question_img: img,
+                    doctor_id: drId,
                   }
-                )
-              } else {
-                res.status(200).json({
-                  msg: `Doctor question stored in database`,
-                  status: 'true',
-                })
-              }
-            })
-          }
-        })
-      } else {
-        const patient_id = PatientResult[0].Ps_id
-        db.query(findQuestion, title, (err, QuestionResult) => {
-          if (err) throw err
-          if (QuestionResult == '') {
-            const patientQuestionAskedData = {
-              question_title: title,
-              question_text: text,
-              question_img: img,
-              patientID: patient_id,
+                  db.query(
+                    sqlInsertIntoQuestions,
+                    doctorQuestionAskedData,
+                    (err, QuestionResult) => {
+                      res.status(200).json({
+                        msg: 'Doctor question stored in database',
+                        status: 'true',
+                      })
+                    }
+                  )
+                } else {
+                  res.status(200).json({
+                    msg: `Doctor question stored in database`,
+                    status: 'true',
+                  })
+                }
+              })
             }
-            db.query(
-              sqlInsertIntoQuestions,
-              patientQuestionAskedData,
-              (err, QuestionResult) => {
-                res.status(200).json({
-                  msg: 'Patient question saved to database',
-                  status: 'true',
-                })
+          })
+        } else {
+          const patient_id = PatientResult[0].Ps_id
+          db.query(findQuestion, title, (err, QuestionResult) => {
+            if (err) throw err
+            if (QuestionResult == '') {
+              const patientQuestionAskedData = {
+                question_title: title,
+                question_text: text,
+                question_img: img,
+                patientID: patient_id,
               }
-            )
-          } else {
-            res.status(200).json({
-              msg: 'Patient question saved to database',
-              status: 'true',
-            })
-          }
-        })
-      }
-    })
+              db.query(
+                sqlInsertIntoQuestions,
+                patientQuestionAskedData,
+                (err, QuestionResult) => {
+                  res.status(200).json({
+                    msg: 'Patient question saved to database',
+                    status: 'true',
+                  })
+                }
+              )
+            } else {
+              res.status(200).json({
+                msg: 'Patient question saved to database',
+                status: 'true',
+              })
+            }
+          })
+        }
+      })
+    }
   })
 }
 const getQuestionTitleList = (req, res) => {

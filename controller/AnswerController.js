@@ -9,13 +9,13 @@ const saveReplayedAnswers = (req, res) => {
   const sqlFindAnswer = 'SELECT * FROM answers WHERE answer_text=?'
   db.query(sqlFindQuestionId, question_title, (err, QuestionResult) => {
     if (err) throw err
-    const question_id = QuestionResult[0].question_id
     if (QuestionResult == '') {
       res.status(404).json({
-        msg: 'questionId  not found',
+        msg: 'question  not found',
         status: 'false',
       })
     } else {
+      const question_id = QuestionResult[0].question_id
       db.query(sqlFindLoginId, email, (err, LoginResult) => {
         if (err) throw err
         if (LoginResult == '') {
@@ -52,7 +52,7 @@ const saveReplayedAnswers = (req, res) => {
                   })
                 } else {
                   res.status(200).json({
-                    msg: `doctor answer to questionId: ${question_id} saved to database`,
+                    msg: `Same answer exits`,
                     status: 'true',
                   })
                 }
@@ -68,8 +68,10 @@ const getAnswersList = (req, res) => {
   const { questionTitle } = req.params
   const sqlFindQuestionsID =
     'SELECT question_id FROM questions WHERE question_title=?'
-  const sqlFindAnswersByQuestionId =
-    'SELECT answer_text, answer_img, doctor_id FROM answers WHERE questionID=?'
+  const sqlFindAnswersByQuestionId = 'SELECT * FROM answers WHERE questionID=?'
+  const sqlFindDoctorName =
+    'SELECT Dr_firstName,Dr_lastName FROM doctor WHERE Dr_id=? '
+  const sqlVoteCount = 'SELECT vote_count FROM vote WHERE answer_id=? '
 
   db.query(sqlFindQuestionsID, questionTitle, (err, QuestionIdResult) => {
     if (err) throw err
@@ -82,11 +84,50 @@ const getAnswersList = (req, res) => {
     } else {
       db.query(sqlFindAnswersByQuestionId, questionID, (err, answerResult) => {
         if (err) throw err
-        res.status(200).json({
+
+        var dataToBeSent = {
           msg: `answers to questionID: ${questionID} are retrived from database`,
           status: 'true',
-          data: answerResult,
-        })
+          data: [],
+        }
+        for (let i = 0; i < answerResult.length; i++) {
+          db.query(
+            sqlFindDoctorName,
+            answerResult[i].doctor_id,
+            (err, doctorResult) => {
+              if (err) throw err
+              db.query(
+                sqlVoteCount,
+                answerResult[i].answer_id,
+                (err, voteResult) => {
+                  if (voteResult == '') {
+                    let dataFetched = {
+                      doctor_name: `${doctorResult[0].Dr_firstName} ${doctorResult[0].Dr_lastName}`,
+                      answer_text: `${answerResult[i].answer_text}`,
+                      answer_image: `${answerResult[i].answer_img}`,
+                      vote_count: 0,
+                    }
+                    dataToBeSent.data.push(dataFetched)
+                    if (i == answerResult.length - 1) {
+                      res.status(200).json(dataToBeSent)
+                    }
+                  } else {
+                    let dataFetched = {
+                      doctor_name: `${doctorResult[0].Dr_firstName} ${doctorResult[0].Dr_lastName}`,
+                      answer_text: `${answerResult[i].answer_text}`,
+                      answer_image: `${answerResult[i].answer_img}`,
+                      vote_count: `${voteResult[i].vote_count}`,
+                    }
+                    dataToBeSent.data.push(dataFetched)
+                    if (i == answerResult.length - 1) {
+                      res.status(200).json(dataToBeSent)
+                    }
+                  }
+                }
+              )
+            }
+          )
+        }
       })
     }
   })

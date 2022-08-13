@@ -12,37 +12,36 @@ const addVote = (req, res) => {
   const { answerText, email } = req.body
   db.query(sqlFindAnswerId, answerText, (err, answerResult) => {
     if (err) throw err
-    const answerID = answerResult[0].answer_id
     if (answerResult == '') {
       res.status(404).json({
         msg: 'answer id not found',
         status: 'false',
       })
     } else {
+      const answerID = answerResult[0].answer_id
       db.query(sqlFindLoginId, email, (err, loginResult) => {
         if (err) throw err
-        const loginID = loginResult[0].login_id
         if (loginResult == '') {
           res.status(404).json({
             msg: 'login id  not found',
             status: 'false',
           })
         } else {
+          const loginID = loginResult[0].login_id
           db.query(sqlFindPatientId, loginID, (err, patientResult) => {
             if (err) throw err
-            const patientID = patientResult[0].Ps_id
             if (patientResult == '') {
               res.status(404).json({
                 msg: 'patient id not found',
                 status: 'false',
               })
             } else {
+              const patientID = patientResult[0].Ps_id
               db.query(
                 sqlFindVoteCountUsingPatientID,
                 patientID,
                 (err, voteResult) => {
                   if (err) throw err
-                  console.log(voteResult)
                   if (voteResult == '') {
                     const voteData = {
                       answer_id: answerID,
@@ -163,7 +162,8 @@ const getVote = (req, res) => {
             status: 'false',
           })
         } else {
-          res.status(404).json({
+          console.log(voteResult)
+          res.status(200).json({
             msg: 'vote count retrived success fully',
             status: 'true',
           })

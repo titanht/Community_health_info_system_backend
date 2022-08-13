@@ -23,6 +23,10 @@ const {
 const { authenticateToken } = require('../middlewares/authenticateToken')
 const { regenerateAccessToken } = require('../controller/TokenController')
 const { logout } = require('../controller/Logout')
+const {
+  getUserProfile,
+  identifyUser,
+} = require('../controller/ProfileController')
 const router = express.Router()
 router.route('/signup').post(EmailRegister)
 router.route('/more/user').post(moreUser)
@@ -40,4 +44,5 @@ router.route('/vote/remove').post(removeVote)
 router.route('/vote/:answerText').get(getVote)
 router.route('/token').post(regenerateAccessToken)
 router.route('/logout').delete(logout)
+router.route('/profile/:email').get(getUserProfile).post(identifyUser)
 module.exports = { router }
