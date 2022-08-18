@@ -27,6 +27,7 @@ const {
   getUserProfile,
   identifyUser,
 } = require('../controller/ProfileController')
+const { addView } = require('../controller/ViewsController')
 const router = express.Router()
 router.route('/signup').post(EmailRegister)
 router.route('/more/user').post(moreUser)
@@ -45,4 +46,5 @@ router.route('/vote/:answerText').get(getVote)
 router.route('/token').post(regenerateAccessToken)
 router.route('/logout').delete(logout)
 router.route('/profile/:email').get(getUserProfile).post(identifyUser)
+router.route('/view').post(addView)
 module.exports = { router }

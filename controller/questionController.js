@@ -90,11 +90,75 @@ const askQuestion = (req, res) => {
   })
 }
 const getQuestionTitleList = (req, res) => {
-  const sqlGetQuestionsList =
-    'SELECT question_title, patientId, doctor_id from questions'
-  db.query(sqlGetQuestionsList, (err, QuestionTitleList) => {
+  const sqlGetQuestionsList = 'SELECT * from questions'
+  const sqlGetAnswers = 'SELECT * FROM answers where questionID=?'
+  const sqlGetView = 'SELECT view_count FROM views where que_id=?'
+  db.query(sqlGetQuestionsList, (err, questionTitleList) => {
     if (err) throw err
-    res.status(200).json(QuestionTitleList)
+    if (questionTitleList == '') {
+      res.status(404).json({
+        msg: 'no questions recorded',
+        status: 'false',
+      })
+    } else {
+      var dataToBeSent = {
+        msg: `questionTitles are retrived from database`,
+        status: 'true',
+        data: [],
+      }
+      for (let i = 0; i < questionTitleList.length; i++) {
+        db.query(
+          sqlGetAnswers,
+          questionTitleList[i].question_id,
+          (err, answerResult) => {
+            if (err) throw err
+            db.query(
+              sqlGetView,
+              questionTitleList[i].question_id,
+              (err, viewResult) => {
+                if (err) throw err
+                if (answerResult == '' && viewResult == '') {
+                  let dataFetched = {
+                    question_title: `${questionTitleList[i].question_title}`,
+                    answers_count: 0,
+                    view_count: 0,
+                  }
+                  dataToBeSent.data.push(dataFetched)
+                } else if (answerResult == '' && viewResult != '') {
+                  const viewCount = viewResult[0].view_count
+                  let dataFetched = {
+                    question_title: `${questionTitleList[i].question_title}`,
+                    answers_count: 0,
+                    view_count: viewCount,
+                  }
+                  dataToBeSent.data.push(dataFetched)
+                } else if (answerResult != '' && viewResult == '') {
+                  const answerCount = answerResult.length
+                  let dataFetched = {
+                    question_title: `${questionTitleList[i].question_title}`,
+                    answers_count: answerCount,
+                    view_count: 0,
+                  }
+                  dataToBeSent.data.push(dataFetched)
+                } else if (answerResult != '' && viewResult != '') {
+                  const answerCount = answerResult.length
+                  const viewCount = viewResult[0].view_count
+                  let dataFetched = {
+                    question_title: `${questionTitleList[i].question_title}`,
+                    answers_count: answerCount,
+                    view_count: viewCount,
+                  }
+                  dataToBeSent.data.push(dataFetched)
+                }
+                if (i == questionTitleList.length - 1) {
+                  res.status(200).json(dataToBeSent)
+                }
+              }
+            )
+          }
+        )
+      }
+    }
   })
 }
 const getQuestionsDetailList = (req, res) => {

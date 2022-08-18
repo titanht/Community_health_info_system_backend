@@ -130,7 +130,7 @@ const removeVote = (req, res) => {
                     db.query(sqlUpdateVote, voteData, (err, result) => {
                       res.status(200).json({
                         msg: `additional vote reduce recoreded by patientID: ${patientID} to answerID: ${answerID}`,
-                        data: result,
+                        status: 'true',
                       })
                     })
                   }
