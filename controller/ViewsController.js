@@ -31,10 +31,10 @@ const addView = (req, res) => {
             })
           })
         } else {
-          const viewCount = viewResult[0].view_count
-          let addViewCount = viewCount + 1
-          const updateVoteData = [addViewCount, quesitonID]
-          db.query(sqlUpdateView, updateVoteData, (err, viewUpdateResult) => {
+          let viewCount = viewResult[0].view_count
+          viewCount = viewCount + 1
+          const updateViewData = [viewCount, quesitonID]
+          db.query(sqlUpdateView, updateViewData, (err, viewUpdateResult) => {
             if (err) throw err
             res.status(200).json({
               msg: 'additon view add to question',

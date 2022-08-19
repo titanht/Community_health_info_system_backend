@@ -2,8 +2,6 @@ const db = require('../connect/connect')
 const sqlFindAnswerId = 'SELECT answer_id FROM answers WHERE answer_text=?'
 const sqlSaveVote = 'INSERT INTO vote SET ?'
 const sqlUpdateVote = 'UPDATE vote SET vote_count=? WHERE answer_id=?'
-const sqlFindVoteCountUsingPatientID =
-  'SELECT vote_count FROM vote WHERE patients_id=?'
 const sqlFindVoteCountUsingAnswerID =
   'SELECT vote_count FROM vote WHERE answer_id=? '
 const sqlFindLoginId = 'SELECT login_id FROM login WHERE email= ?'
@@ -38,8 +36,8 @@ const addVote = (req, res) => {
             } else {
               const patientID = patientResult[0].Ps_id
               db.query(
-                sqlFindVoteCountUsingPatientID,
-                patientID,
+                sqlFindVoteCountUsingAnswerID,
+                answerID,
                 (err, voteResult) => {
                   if (err) throw err
                   if (voteResult == '') {
@@ -56,6 +54,7 @@ const addVote = (req, res) => {
                     })
                   } else {
                     //vote must be once
+
                     const voteCount = voteResult[0].vote_count
                     let addVoteCount = voteCount + 1
                     const updateVoteData = [addVoteCount, answerID]
@@ -106,8 +105,8 @@ const removeVote = (req, res) => {
             } else {
               const patientID = patientResult[0].Ps_id
               db.query(
-                sqlFindVoteCountUsingPatientID,
-                patientID,
+                sqlFindVoteCountUsingAnswerID,
+                answerID,
                 (err, voteResult) => {
                   if (err) throw err
                   if (voteResult == '') {
@@ -162,7 +161,6 @@ const getVote = (req, res) => {
             status: 'false',
           })
         } else {
-          console.log(voteResult)
           res.status(200).json({
             msg: 'vote count retrived success fully',
             status: 'true',
